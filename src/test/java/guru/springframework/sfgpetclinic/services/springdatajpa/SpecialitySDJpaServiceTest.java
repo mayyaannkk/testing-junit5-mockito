@@ -11,8 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -119,5 +118,29 @@ class SpecialitySDJpaServiceTest {
         then(repository).should().findById(anyLong());
         then(repository).should(times(1)).findById(anyLong());
         then(repository).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    void testDoThrow() {
+        doThrow(new RuntimeException("boom")).when(repository).delete(any());
+
+        assertThrows(RuntimeException.class, () -> service.delete(new Speciality()));
+        verify(repository).delete(any(Speciality.class));
+    }
+
+    @Test
+    void testFindByIDThrowsBDD() {
+        given(repository.findById(1L)).willThrow(new RuntimeException("boom"));
+
+        assertThrows(RuntimeException.class, () -> service.findById(1L));
+        then(repository).should().findById(1L);
+    }
+
+    @Test
+    void testDeleteBDD() {
+        willThrow(RuntimeException.class).given(repository).delete(any());
+
+        assertThrows(RuntimeException.class, () -> service.delete(new Speciality()));
+        then(repository).should().delete(any());
     }
 }
