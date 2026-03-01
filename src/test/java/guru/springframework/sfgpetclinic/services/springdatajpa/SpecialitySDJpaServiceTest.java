@@ -17,50 +17,53 @@ import static org.mockito.Mockito.*;
 class SpecialitySDJpaServiceTest {
 
     @Mock
-    SpecialtyRepository specialtyRepository;
+    SpecialtyRepository repository;
 
     @InjectMocks
-    SpecialitySDJpaService specialitySDJpaService;
+    SpecialitySDJpaService service;
 
     @Test
     void delete() {
-        specialitySDJpaService.delete(new Speciality());
+        Speciality speciality = new Speciality();
+        service.delete(speciality);
+
+        verify(repository).delete(any(Speciality.class));
     }
 
     @Test
     void deleteById() {
-        specialitySDJpaService.deleteById(1L);
+        service.deleteById(1L);
     }
 
     @Test
     void deleteByIdVerify() {
-        specialitySDJpaService.deleteById(1L);
-        specialitySDJpaService.deleteById(1L);
+        service.deleteById(1L);
+        service.deleteById(1L);
 
         // Here it is checking if the repository was called with this argument value, 1L here, and how many times it was called with that value
-        verify(specialtyRepository, times(2)).deleteById(1L);
+        verify(repository, times(2)).deleteById(anyLong());
 
         // repository called at least 2 times with argument 1L
-        verify(specialtyRepository, atLeast(2)).deleteById(1L);
+        verify(repository, atLeast(2)).deleteById(1L);
 
         // repository called at most 2 times with argument 1L
-        verify(specialtyRepository, atMost(2)).deleteById(1L);
+        verify(repository, atMost(2)).deleteById(1L);
 
         // check if repository called with value 1L at least once
-        verify(specialtyRepository, atLeastOnce()).deleteById(1L);
+        verify(repository, atLeastOnce()).deleteById(1L);
 
         // check if repository never called with value 5L
-        verify(specialtyRepository, never()).deleteById(5L);
+        verify(repository, never()).deleteById(5L);
     }
 
     @Test
     void findByIDTest() {
         Speciality speciality = new Speciality();
-        when(specialtyRepository.findById(1L)).thenReturn(Optional.of(speciality));
+        when(repository.findById(1L)).thenReturn(Optional.of(speciality));
 
-        Speciality foundSpeciality = specialitySDJpaService.findById(1L);
+        Speciality foundSpeciality = service.findById(1L);
         assertNotNull(foundSpeciality);
-        verify(specialtyRepository).findById(1L);
+        verify(repository).findById(1L);
 
     }
 }
