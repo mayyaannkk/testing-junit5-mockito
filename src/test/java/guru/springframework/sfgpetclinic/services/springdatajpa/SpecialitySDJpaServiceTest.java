@@ -143,4 +143,21 @@ class SpecialitySDJpaServiceTest {
         assertThrows(RuntimeException.class, () -> service.delete(new Speciality()));
         then(repository).should().delete(any());
     }
+
+    @Test
+    void testSaveLambda() {
+        //Given
+        final String MATCH_ME = "MATCH_ME";
+        Speciality speciality = new Speciality();
+        speciality.setDescription(MATCH_ME);
+        speciality.setId(1L);
+        //need mock to only return when description matches
+        given(repository.save(argThat(argument -> argument.getDescription().equals(MATCH_ME)))).willReturn(speciality);
+
+        //When
+        Speciality returnedSpeciality = service.save(speciality);
+
+        //Then
+        assertEquals((Long)1L, returnedSpeciality.getId());
+    }
 }
