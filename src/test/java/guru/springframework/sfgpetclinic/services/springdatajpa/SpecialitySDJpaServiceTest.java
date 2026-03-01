@@ -8,6 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -49,5 +51,16 @@ class SpecialitySDJpaServiceTest {
 
         // check if repository never called with value 5L
         verify(specialtyRepository, never()).deleteById(5L);
+    }
+
+    @Test
+    void findByIDTest() {
+        Speciality speciality = new Speciality();
+        when(specialtyRepository.findById(1L)).thenReturn(Optional.of(speciality));
+
+        Speciality foundSpeciality = specialitySDJpaService.findById(1L);
+        assertNotNull(foundSpeciality);
+        verify(specialtyRepository).findById(1L);
+
     }
 }
