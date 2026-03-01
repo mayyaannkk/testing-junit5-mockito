@@ -7,11 +7,14 @@ import guru.springframework.sfgpetclinic.model.Owner;
 import guru.springframework.sfgpetclinic.services.OwnerService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -28,6 +31,42 @@ class OwnerControllerTest {
 
     @InjectMocks
     OwnerController ownerController;
+
+    @Captor
+    ArgumentCaptor<String> stringArgumentCaptor;
+
+    @Test
+    void processFindFormWildcardString() {
+        //Given
+        Owner owner = new Owner(1L, "Joe", "Buck");
+        List<Owner> ownerList = new ArrayList<>();
+        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+
+        given(ownerService.findAllByLastNameLike(captor.capture())).willReturn(ownerList);
+
+        //When
+        String viewName = ownerController.processFindForm(owner, bindingResult, null);
+
+        //Then
+        assertEquals("%Buck%", captor.getValue());
+
+    }
+
+    @Test
+    void processFindFormWildcardStringAnnotation() {
+        //Given
+        Owner owner = new Owner(1L, "Joe", "Buck");
+        List<Owner> ownerList = new ArrayList<>();
+
+        given(ownerService.findAllByLastNameLike(stringArgumentCaptor.capture())).willReturn(ownerList);
+
+        //When
+        String viewName = ownerController.processFindForm(owner, bindingResult, null);
+
+        //Then
+        assertEquals("%Buck%", stringArgumentCaptor.getValue());
+
+    }
 
     @Test
     void processCreationFormWithoutError() {
