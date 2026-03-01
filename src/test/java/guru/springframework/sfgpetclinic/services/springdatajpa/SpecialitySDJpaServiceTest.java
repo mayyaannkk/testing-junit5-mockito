@@ -26,50 +26,87 @@ class SpecialitySDJpaServiceTest {
 
     @Test
     void delete() {
+        //Given
         Speciality speciality = new Speciality();
+
+        //When
         service.delete(speciality);
 
-        verify(repository).delete(any(Speciality.class));
+        //Then
+        then(repository).should().delete(any(Speciality.class));
     }
 
     @Test
     void deleteById() {
+        //Given
+        long id = 1L;
+
+        //When
+        service.deleteById(id);
+        service.deleteById(id);
+
+        //Then
+        then(repository).should(times(2)).deleteById(id);
+    }
+
+    @Test
+    void deleteByIDAtLeast() {
+        //Given
+
+        //When
         service.deleteById(1L);
+        service.deleteById(1L);
+
+        //Then
+        then(repository).should(atLeastOnce()).deleteById(1L);
+    }
+
+    @Test
+    void deleteByIDAtMost() {
+        //When
+        service.deleteById(1L);
+        service.deleteById(1L);
+
+        //Then
+        then(repository).should(atMost(5)).deleteById(1L);
+    }
+
+    @Test
+    void deleteByIDNever() {
+        //When
+        service.deleteById(1L);
+        service.deleteById(1L);
+
+        //Then
+        then(repository).should(never()).deleteById(5L);
     }
 
     @Test
     void deleteByIdVerify() {
+        //When
         service.deleteById(1L);
         service.deleteById(1L);
 
+        //Then
         // Here it is checking if the repository was called with this argument value, 1L here, and how many times it was called with that value
-        verify(repository, times(2)).deleteById(anyLong());
+        then(repository).should(times(2)).deleteById(anyLong());
 
         // repository called at least 2 times with argument 1L
-        verify(repository, atLeast(2)).deleteById(1L);
+        then(repository).should(atLeast(2)).deleteById(1L);
 
         // repository called at most 2 times with argument 1L
-        verify(repository, atMost(2)).deleteById(1L);
+        then(repository).should(atMost(2)).deleteById(1L);
 
         // check if repository called with value 1L at least once
-        verify(repository, atLeastOnce()).deleteById(1L);
+        then(repository).should(atLeastOnce()).deleteById(1L);
 
         // check if repository never called with value 5L
-        verify(repository, never()).deleteById(5L);
+        then(repository).should(never()).deleteById(5L);
     }
+
 
     @Test
     void findByIDTest() {
-        Speciality speciality = new Speciality();
-        when(repository.findById(1L)).thenReturn(Optional.of(speciality));
-
-        Speciality foundSpeciality = service.findById(1L);
-        assertNotNull(foundSpeciality);
-        verify(repository).findById(1L);
-    }
-
-    @Test
-    void findByIDBDDTest() {
         //Given
         Speciality speciality = new Speciality();
         given(repository.findById(1L)).willReturn(Optional.of(speciality));
