@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,13 +70,17 @@ class SpecialitySDJpaServiceTest {
 
     @Test
     void findByIDBDDTest() {
+        //Given
         Speciality speciality = new Speciality();
-
         given(repository.findById(1L)).willReturn(Optional.of(speciality));
 
+        //When
         Speciality foundSpeciality = service.findById(1L);
 
+        //Then
         assertNotNull(foundSpeciality);
-        verify(repository).findById(1L);
+        then(repository).should().findById(anyLong());
+        then(repository).should(times(1)).findById(anyLong());
+        then(repository).shouldHaveNoMoreInteractions();
     }
 }
