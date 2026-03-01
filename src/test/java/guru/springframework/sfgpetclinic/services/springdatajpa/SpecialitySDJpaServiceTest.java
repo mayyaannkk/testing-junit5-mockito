@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,6 +65,17 @@ class SpecialitySDJpaServiceTest {
         Speciality foundSpeciality = service.findById(1L);
         assertNotNull(foundSpeciality);
         verify(repository).findById(1L);
+    }
 
+    @Test
+    void findByIDBDDTest() {
+        Speciality speciality = new Speciality();
+
+        given(repository.findById(1L)).willReturn(Optional.of(speciality));
+
+        Speciality foundSpeciality = service.findById(1L);
+
+        assertNotNull(foundSpeciality);
+        verify(repository).findById(1L);
     }
 }
