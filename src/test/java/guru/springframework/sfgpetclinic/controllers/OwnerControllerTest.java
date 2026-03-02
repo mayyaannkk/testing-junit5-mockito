@@ -5,6 +5,7 @@ import guru.springframework.sfgpetclinic.fauxspring.Model;
 import guru.springframework.sfgpetclinic.fauxspring.ModelMapImpl;
 import guru.springframework.sfgpetclinic.model.Owner;
 import guru.springframework.sfgpetclinic.services.OwnerService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -35,6 +36,21 @@ class OwnerControllerTest {
     @Captor
     ArgumentCaptor<String> stringArgumentCaptor;
 
+    @BeforeEach
+    void setUp() {
+        given(ownerService.findAllByLastNameLike(stringArgumentCaptor.capture())).willAnswer(invocation -> {
+            String name = invocation.getArgument(0);
+            List<Owner> owners = new ArrayList<>();
+
+            if (name.equals("%Buck%")) {
+                owners.add(new Owner(1L, "Joe", "Buck"));
+                return owners;
+            }
+
+            throw new RuntimeException();
+        });
+    }
+
     @Test
     void processFindFormWildcardString() {
         //Given
@@ -56,16 +72,13 @@ class OwnerControllerTest {
     void processFindFormWildcardStringAnnotation() {
         //Given
         Owner owner = new Owner(1L, "Joe", "Buck");
-        List<Owner> ownerList = new ArrayList<>();
-
-        given(ownerService.findAllByLastNameLike(stringArgumentCaptor.capture())).willReturn(ownerList);
 
         //When
         String viewName = ownerController.processFindForm(owner, bindingResult, null);
 
         //Then
         assertEquals("%Buck%", stringArgumentCaptor.getValue());
-
+        assertEquals("redirect:/owners/1", viewName);
     }
 
     @Test
