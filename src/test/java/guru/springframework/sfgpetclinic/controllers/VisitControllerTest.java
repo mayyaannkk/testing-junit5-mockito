@@ -9,24 +9,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class VisitControllerTest {
 
-    @Mock
+    @Spy
     PetService petService;
-
-    @Mock
-    Model model;
 
     @InjectMocks
     VisitController visitController;
@@ -34,17 +32,22 @@ class VisitControllerTest {
     @Test
     void loadPetWithVisit() {
         //Given
+        Map<String, Object> model = new HashMap<>();
         Pet pet = new Pet(1L);
-        Visit visit = new Visit();
-        pet.getVisits().add(visit);
-        visit.setPet(pet);
-        given(petService.findById(1L)).willReturn(pet);
+        Pet pet3 = new Pet(3L);
+
+        petService.save(pet);
+        petService.save(pet3);
+
+        doReturn(pet).when(petService).findById(1L);
 
         //When
-        Visit returnedVisit = visitController.loadPetWithVisit(1L, mock(Map.class));
+        Visit returnedVisit = visitController.loadPetWithVisit(1L, model);
 
         //Then
-        then(petService).should().findById(anyLong());
         assertEquals((Long)1L, returnedVisit.getPet().getId());
+        assertNotNull(returnedVisit);
+        assertNotNull(returnedVisit.getPet());
+        then(petService).should(times(1)).findById(anyLong());
     }
 }
