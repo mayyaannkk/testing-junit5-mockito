@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OwnerControllerTest {
@@ -65,13 +65,12 @@ class OwnerControllerTest {
         List<Owner> ownerList = new ArrayList<>();
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        given(ownerService.findAllByLastNameLike(captor.capture())).willReturn(ownerList);
-
         //When
         String viewName = ownerController.processFindForm(owner, bindingResult, null);
 
         //Then
-        assertEquals("%Buck%", captor.getValue());
+        assertEquals("%Buck%", stringArgumentCaptor.getValue());
+        verifyZeroInteractions(model);
 
     }
 
@@ -86,6 +85,7 @@ class OwnerControllerTest {
         //Then
         assertEquals("%Buck%", stringArgumentCaptor.getValue());
         assertEquals("redirect:/owners/1", viewName);
+        verifyZeroInteractions(model);
     }
 
     @Test
@@ -96,9 +96,12 @@ class OwnerControllerTest {
         //When
         String viewName = ownerController.processFindForm(owner, bindingResult, null);
 
+        verifyNoMoreInteractions(ownerService);
+
         //Then
         assertEquals("%DontFindMe%", stringArgumentCaptor.getValue());
         assertEquals("owners/findOwners", viewName);
+        verifyZeroInteractions(model);
     }
 
     @Test
@@ -116,7 +119,9 @@ class OwnerControllerTest {
 
         //inorder asserts -- order matters here
         inOrder.verify(ownerService).findAllByLastNameLike(anyString());
-        inOrder.verify(model).addAttribute(anyString(), anyList());
+        inOrder.verify(model, times(1)).addAttribute(anyString(), anyList());
+
+        verifyNoMoreInteractions(model);
     }
 
     @Test
