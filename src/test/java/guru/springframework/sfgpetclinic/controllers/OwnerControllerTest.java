@@ -20,6 +20,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class OwnerControllerTest {
@@ -45,9 +46,14 @@ class OwnerControllerTest {
             if (name.equals("%Buck%")) {
                 owners.add(new Owner(1L, "Joe", "Buck"));
                 return owners;
+            } else if(name.equals("%DontFindMe%")) {
+                return owners;
+                //returning empty owners
+            } else if(name.equals("%MultipleOwners%")) {
+                owners.addAll(0, List.of(new Owner(1L, "Joe", "MultipleOwners"), new Owner(2L, "Buck", "MultipleOwners")));
+                return owners;
             }
-
-            throw new RuntimeException();
+            throw new RuntimeException("Invalid Argument");
         });
     }
 
@@ -79,6 +85,32 @@ class OwnerControllerTest {
         //Then
         assertEquals("%Buck%", stringArgumentCaptor.getValue());
         assertEquals("redirect:/owners/1", viewName);
+    }
+
+    @Test
+    void processFindFormDontFind() {
+        //Given
+        Owner owner = new Owner(1L, "Joe", "DontFindMe");
+
+        //When
+        String viewName = ownerController.processFindForm(owner, bindingResult, null);
+
+        //Then
+        assertEquals("%DontFindMe%", stringArgumentCaptor.getValue());
+        assertEquals("owners/findOwners", viewName);
+    }
+
+    @Test
+    void processFindFormMultipleOwners() {
+        //Given
+        Owner owner = new Owner(1L, "Joe", "MultipleOwners");
+
+        //When
+        String viewName = ownerController.processFindForm(owner, bindingResult, mock(Model.class));
+
+        //Then
+        assertEquals("%MultipleOwners%", stringArgumentCaptor.getValue());
+        assertEquals("owners/ownersList", viewName);
     }
 
     @Test
