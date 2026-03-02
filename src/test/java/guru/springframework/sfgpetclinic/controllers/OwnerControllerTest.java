@@ -8,16 +8,14 @@ import guru.springframework.sfgpetclinic.services.OwnerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -30,6 +28,9 @@ class OwnerControllerTest {
 
     @Mock
     BindingResult bindingResult;
+
+    @Mock
+    Model model;
 
     @InjectMocks
     OwnerController ownerController;
@@ -104,13 +105,18 @@ class OwnerControllerTest {
     void processFindFormMultipleOwners() {
         //Given
         Owner owner = new Owner(1L, "Joe", "MultipleOwners");
+        InOrder inOrder = Mockito.inOrder(ownerService, model);
 
         //When
-        String viewName = ownerController.processFindForm(owner, bindingResult, mock(Model.class));
+        String viewName = ownerController.processFindForm(owner, bindingResult, model);
 
         //Then
         assertEquals("%MultipleOwners%", stringArgumentCaptor.getValue());
         assertEquals("owners/ownersList", viewName);
+
+        //inorder asserts -- order matters here
+        inOrder.verify(ownerService).findAllByLastNameLike(anyString());
+        inOrder.verify(model).addAttribute(anyString(), anyList());
     }
 
     @Test
