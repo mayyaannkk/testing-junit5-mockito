@@ -32,7 +32,7 @@ class SpecialitySDJpaServiceTest {
         service.delete(speciality);
 
         //Then
-        then(repository).should().delete(any(Speciality.class));
+        then(repository).should(timeout(100)).delete(any(Speciality.class));
     }
 
     @Test
@@ -45,7 +45,7 @@ class SpecialitySDJpaServiceTest {
         service.deleteById(id);
 
         //Then
-        then(repository).should(times(2)).deleteById(id);
+        then(repository).should(timeout(100).times(2)).deleteById(id);
     }
 
     @Test
@@ -57,7 +57,7 @@ class SpecialitySDJpaServiceTest {
         service.deleteById(1L);
 
         //Then
-        then(repository).should(atLeastOnce()).deleteById(1L);
+        then(repository).should(timeout(100).atLeastOnce()).deleteById(1L);
     }
 
     @Test
@@ -88,16 +88,16 @@ class SpecialitySDJpaServiceTest {
 
         //Then
         // Here it is checking if the repository was called with this argument value, 1L here, and how many times it was called with that value
-        then(repository).should(times(2)).deleteById(anyLong());
+        then(repository).should(timeout(100).times(2)).deleteById(anyLong());
 
         // repository called at least 2 times with argument 1L
-        then(repository).should(atLeast(2)).deleteById(1L);
+        then(repository).should(timeout(100).atLeast(2)).deleteById(1L);
 
         // repository called at most 2 times with argument 1L
         then(repository).should(atMost(2)).deleteById(1L);
 
         // check if repository called with value 1L at least once
-        then(repository).should(atLeastOnce()).deleteById(1L);
+        then(repository).should(timeout(100).atLeastOnce()).deleteById(1L);
 
         // check if repository never called with value 5L
         then(repository).should(never()).deleteById(5L);
@@ -116,7 +116,7 @@ class SpecialitySDJpaServiceTest {
         //Then
         assertNotNull(foundSpeciality);
         then(repository).should().findById(anyLong());
-        then(repository).should(times(1)).findById(anyLong());
+        then(repository).should(timeout(100).times(1)).findById(anyLong());
         then(repository).shouldHaveNoMoreInteractions();
     }
 
